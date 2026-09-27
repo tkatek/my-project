@@ -1,49 +1,5 @@
-{{--
-AGAFAY / DESERT STORIES — self-contained Laravel landing page
-Place at: resources/views/landing.blade.php
-Route: Route::view('/', 'landing')->name('home');
 
-Everything is in this view: content, CSS, inline SVG icons, and application JS.
-Only photography, Google Fonts, GSAP 3.13.0, and ScrollTrigger load externally.
-No npm, Vite, Tailwind build, or separate public assets are required.
-
-FULL-WIDTH LAYOUT:
-No centered 1240px maximum: all section containers use fluid edge gutters.
-Edit --page-gutter to adjust the desktop inset; phones use 20px (16px below 361px).
-Experience cards use 4 columns from 1600px, 3 on desktop, 2 on tablet, and 1 on phones.
-Body copy intentionally keeps readable line lengths; backgrounds are edge to edge.
-
-THEME AND DECORATIONS:
-Follows the browser/device light or dark preference, including changes while open.
-CSS handles the theme before application JS; forms and dialogs follow it too.
-Inline SVG suns, dots, arches, stars, trails, palms, and dunes are decorative,
-non-focusable, locally clipped, and positioned behind all interactive content.
-The account icon displays a coming-soon notice until $site['loginUrl'] is set.
-Do not set that URL before a real login route is available; this view adds no auth.
-
-CONTENT: The brand, prices, itineraries, and testimonials below are design samples.
-Keep demoContent true until you have replaced them with verified business content.
-Stock images are illustrative; they do not promise a particular camp or supplier.
-
-BACKEND HANDOFF (not implemented in a view):
-Pass $bookingEndpoint and $contactEndpoint from your controller once routes exist:
-  return view('landing', [
-    'bookingEndpoint' => route('bookings.store'),
-    'contactEndpoint' => route('contact.store'),
-  ]);
-Both endpoints must be same-origin POST routes in the web middleware group.
-A successful response must be JSON: {"success":true,"reference":"AGF-0001"}
-Validation errors: HTTP 422 + {"message":"...","errors":{"email":["..."]}}
-The form submits FormData, CSRF, and an Idempotency-Key header. The controller must
-persist that key with a uniqueness constraint if duplicate prevention is needed.
-Never trust client prices: look up package_id and calculate the quote server-side.
-Validate dates, consent, phone, capacities, and activity suitability server-side.
-Use throttling and spam protection. Do not log unredacted personal form data.
-No visitor contact data is stored locally by this page. Only saved package IDs
-are kept in localStorage. Without endpoints, forms are explicitly preview-only.
-Do not remove the preview warnings merely to make an unconnected form look live.
---}}
-@php
+<?php
     $site = array_replace([
         'name' => 'AGAFAY',
         'tagline' => 'DESERT STORIES',
@@ -572,7 +528,7 @@ Do not remove the preview warnings merely to make an unconnected form look live.
         'timezone' => $site['timezone'],
         'demoContent' => (bool) $site['demoContent'],
     ];
-@endphp
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -581,22 +537,22 @@ Do not remove the preview warnings merely to make an unconnected form look live.
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#faf8f3" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#141c18" media="(prefers-color-scheme: dark)">
-    <meta name="description" content="{{ $site['description'] }}">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $site['name'] }} — A different kind of day</title>
-    @if ($site['demoContent'])
+    <meta name="description" content="<?php echo e($site['description']); ?>">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title><?php echo e($site['name']); ?> — A different kind of day</title>
+    <?php if($site['demoContent']): ?>
     <meta name="robots" content="noindex,nofollow">
-    @endif
-    <meta property="og:title" content="{{ $site['name'] }} — A different kind of day">
-    <meta property="og:description" content="{{ $site['description'] }}">
+    <?php endif; ?>
+    <meta property="og:title" content="<?php echo e($site['name']); ?> — A different kind of day">
+    <meta property="og:description" content="<?php echo e($site['description']); ?>">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="{{ $img($photos['hero'], 1600) }}">
+    <meta property="og:image" content="<?php echo e($img($photos['hero'], 1600)); ?>">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232d3c32'/%3E%3Ccircle cx='32' cy='25' r='11' fill='%23ead4b2'/%3E%3Cpath d='M10 45Q28 25 54 45M10 52Q33 35 54 49' fill='none' stroke='%23ead4b2' stroke-width='3'/%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://images.pexels.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="preload" as="image" href="{{ $img($photos['hero'], 1920) }}" imagesrcset="{{ $img($photos['hero'], 800) }} 800w, {{ $img($photos['hero'], 1280) }} 1280w, {{ $img($photos['hero'], 1920) }} 1920w" imagesizes="100vw" fetchpriority="high">
+    <link rel="preload" as="image" href="<?php echo e($img($photos['hero'], 1920)); ?>" imagesrcset="<?php echo e($img($photos['hero'], 800)); ?> 800w, <?php echo e($img($photos['hero'], 1280)); ?> 1280w, <?php echo e($img($photos['hero'], 1920)); ?> 1920w" imagesizes="100vw" fetchpriority="high">
     <style>
         /* 01. Design tokens and a small, dependency-free reset */
         :root {
@@ -1469,9 +1425,9 @@ Do not remove the preview warnings merely to make an unconnected form look live.
 <a class="skip-link" href="#main">Skip to content</a>
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
     <defs>
-        @foreach ($iconPaths as $name => $path)
-        <symbol id="i-{{ $name }}" viewBox="0 0 24 24">{!! $path !!}</symbol>
-        @endforeach
+        <?php $__currentLoopData = $iconPaths; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $name => $path): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <symbol id="i-<?php echo e($name); ?>" viewBox="0 0 24 24"><?php echo $path; ?></symbol>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         <!-- Decorative symbols are isolated from the interactive icon set. -->
         <symbol id="decor-sun" viewBox="0 0 160 160">
             <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
@@ -1519,25 +1475,25 @@ Do not remove the preview warnings merely to make an unconnected form look live.
         </symbol>
     </defs>
 </svg>
-@if ($site['demoContent'] || !$bookingEndpoint || !$contactEndpoint)
+<?php if($site['demoContent'] || !$bookingEndpoint || !$contactEndpoint): ?>
 <div class="preview-strip">
-    @if ($site['demoContent'])
+    <?php if($site['demoContent']): ?>
     <strong>Design preview</strong> · Sample experiences, prices & guest stories.
-    @endif
-    @if (!$bookingEndpoint && !$contactEndpoint)
+    <?php endif; ?>
+    <?php if(!$bookingEndpoint && !$contactEndpoint): ?>
     Forms are not live.
-    @elseif (!$bookingEndpoint)
+    <?php elseif(!$bookingEndpoint): ?>
     Booking requests are in preview mode.
-    @elseif (!$contactEndpoint)
+    <?php elseif(!$contactEndpoint): ?>
     The contact form is in preview mode.
-    @endif
+    <?php endif; ?>
 </div>
-@endif
+<?php endif; ?>
 <header class="site-header" id="site-header">
     <div class="container nav-bar">
-        <a class="brand" href="#home" aria-label="{{ $site['name'] }} home">
+        <a class="brand" href="#home" aria-label="<?php echo e($site['name']); ?> home">
             <svg class="brand-symbol" viewBox="0 0 52 52" fill="none" aria-hidden="true"><path d="M7 43V25a19 19 0 0 1 38 0v18" stroke="currentColor" stroke-width="1.5"/><circle cx="26" cy="22" r="7" fill="currentColor"/><path d="M9 39c13-14 20-5 34-7M9 44c15-12 23-3 34-7" stroke="currentColor" stroke-width="1.5"/><path d="M26 3V0M9 10 7 8m36 2 2-2" stroke="currentColor" stroke-width="1.5"/></svg>
-            <span><span class="brand-name">{{ $site['name'] }}</span><span class="brand-tagline">{{ $site['tagline'] }}</span></span>
+            <span><span class="brand-name"><?php echo e($site['name']); ?></span><span class="brand-tagline"><?php echo e($site['tagline']); ?></span></span>
         </a>
         <nav class="nav-links" aria-label="Main navigation">
             <a href="#experiences" data-nav="experiences">Experiences</a>
@@ -1547,26 +1503,26 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             <a href="#contact" data-nav="contact">Get in touch</a>
         </nav>
         <div class="nav-actions">
-            <a class="button button-green" href="#experiences">Find my escape {!! $icon('arrow-up') !!}</a>
-            @if ($site['loginUrl'])
-            <a class="icon-button nav-profile" href="{{ $site['loginUrl'] }}" aria-label="Owner login" title="Owner login">
-                {!! $icon('user') !!}<span class="profile-tooltip" aria-hidden="true">Owner login</span>
+            <a class="button button-green" href="#experiences">Find my escape <?php echo $icon('arrow-up'); ?></a>
+            <?php if($site['loginUrl']): ?>
+            <a class="icon-button nav-profile" href="<?php echo e($site['loginUrl']); ?>" aria-label="Owner login" title="Owner login">
+                <?php echo $icon('user'); ?><span class="profile-tooltip" aria-hidden="true">Owner login</span>
             </a>
-            @else
+            <?php else: ?>
             <button class="icon-button nav-profile" type="button" data-account-preview aria-label="Owner login, coming soon" title="Owner login · coming soon">
-                {!! $icon('user') !!}<span class="profile-tooltip" aria-hidden="true">Owner login · coming soon</span>
+                <?php echo $icon('user'); ?><span class="profile-tooltip" aria-hidden="true">Owner login · coming soon</span>
             </button>
-            @endif
-            <button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-controls="mobile-menu" aria-expanded="false">{!! $icon('menu') !!}</button>
+            <?php endif; ?>
+            <button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-controls="mobile-menu" aria-expanded="false"><?php echo $icon('menu'); ?></button>
         </div>
     </div>
     <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation" hidden>
-        <a href="#experiences">Explore experiences {!! $icon('arrow-up') !!}</a>
-        <a href="#about">Our story {!! $icon('arrow-up') !!}</a>
-        <a href="#moments">The moments {!! $icon('arrow-up') !!}</a>
-        <a href="#stories">Guest stories {!! $icon('arrow-up') !!}</a>
-        <a href="#faq">Before you go {!! $icon('arrow-up') !!}</a>
-        <a href="#contact">Get in touch {!! $icon('arrow-up') !!}</a>
+        <a href="#experiences">Explore experiences <?php echo $icon('arrow-up'); ?></a>
+        <a href="#about">Our story <?php echo $icon('arrow-up'); ?></a>
+        <a href="#moments">The moments <?php echo $icon('arrow-up'); ?></a>
+        <a href="#stories">Guest stories <?php echo $icon('arrow-up'); ?></a>
+        <a href="#faq">Before you go <?php echo $icon('arrow-up'); ?></a>
+        <a href="#contact">Get in touch <?php echo $icon('arrow-up'); ?></a>
     </nav>
 </header>
 <main id="main">
@@ -1576,40 +1532,40 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             <svg class="decor-mark decor-mark--trail decor-slot-b" viewBox="0 0 260 100" aria-hidden="true" focusable="false"><use href="#decor-trail"></use></svg>
             <svg class="decor-mark decor-mark--dunes decor-slot-c decor-secondary" viewBox="0 0 200 90" aria-hidden="true" focusable="false"><use href="#decor-dunes"></use></svg>
         </div>
-        <img class="hero-photo" src="{{ $img($photos['hero'], 1920) }}" srcset="{{ $img($photos['hero'], 800) }} 800w, {{ $img($photos['hero'], 1280) }} 1280w, {{ $img($photos['hero'], 1920) }} 1920w" sizes="100vw" width="1920" height="1280" alt="A glowing sunset over the rocky Agafay landscape" fetchpriority="high" decoding="async">
+        <img class="hero-photo" src="<?php echo e($img($photos['hero'], 1920)); ?>" srcset="<?php echo e($img($photos['hero'], 800)); ?> 800w, <?php echo e($img($photos['hero'], 1280)); ?> 1280w, <?php echo e($img($photos['hero'], 1920)); ?> 1920w" sizes="100vw" width="1920" height="1280" alt="A glowing sunset over the rocky Agafay landscape" fetchpriority="high" decoding="async">
         <div class="container hero-inner">
             <div class="hero-copy">
                 <div class="eyebrow hero-animate">Marrakech, Morocco · Beyond the ordinary</div>
                 <h1 id="hero-title"><span class="hero-line hero-animate">A different</span><span class="hero-line hero-animate">kind of day.</span><span class="hero-line hero-animate"><em>A lasting feeling.</em></span></h1>
                 <p class="hero-animate">Camel trails. Golden skies. Mint tea, poured slowly. Discover the Agafay moments you will take home with you.</p>
                 <div class="hero-actions hero-animate">
-                    <a class="button" href="#experiences">Explore the experiences {!! $icon('arrow-up') !!}</a>
-                    <a class="text-link" href="#about">A little about us {!! $icon('arrow') !!}</a>
+                    <a class="button" href="#experiences">Explore the experiences <?php echo $icon('arrow-up'); ?></a>
+                    <a class="text-link" href="#about">A little about us <?php echo $icon('arrow'); ?></a>
                 </div>
             </div>
             <div class="hero-side">
-                <div class="hero-seal" aria-hidden="true"><span>Less ordinary</span>{!! $icon('sun') !!}<span>More Morocco</span></div>
+                <div class="hero-seal" aria-hidden="true"><span>Less ordinary</span><?php echo $icon('sun'); ?><span>More Morocco</span></div>
                 <button class="hero-postcard" type="button" data-details="camel-sunset" aria-label="Explore the sunset camel ride and mint tea experience">
-                    <img src="{{ $img($photos['camel'], 300) }}" width="90" height="105" alt="" decoding="async">
-                    <span class="postcard-copy"><small>The golden-hour edit</small><strong>Chase a softer<br>kind of sunset.</strong><span class="postcard-link">Discover this escape {!! $icon('arrow-up') !!}</span></span>
+                    <img src="<?php echo e($img($photos['camel'], 300)); ?>" width="90" height="105" alt="" decoding="async">
+                    <span class="postcard-copy"><small>The golden-hour edit</small><strong>Chase a softer<br>kind of sunset.</strong><span class="postcard-link">Discover this escape <?php echo $icon('arrow-up'); ?></span></span>
                 </button>
             </div>
         </div>
-        <div class="hero-caption">{!! $icon('pin') !!} A little beyond Marrakech. A world away.</div>
+        <div class="hero-caption"><?php echo $icon('pin'); ?> A little beyond Marrakech. A world away.</div>
     </section>
     <div class="container finder-wrap">
         <form class="finder" id="finder-form" aria-label="Find your preferred experience">
-            <div class="finder-field">{!! $icon('compass') !!}<div><label for="finder-category">Your kind of escape</label><select id="finder-category" name="category"><option value="all">A little of everything</option><option value="adventure">A little adventure</option><option value="food">Food & culture</option><option value="relax">Time to slow down</option><option value="private">Something private</option></select></div></div>
-            <div class="finder-field">{!! $icon('calendar') !!}<div><label for="finder-date">Your preferred day</label><input id="finder-date" name="date" type="date" aria-describedby="finder-note"></div></div>
-            <div class="finder-field">{!! $icon('users') !!}<div><label for="finder-guests">Good company</label><select id="finder-guests" name="guests"><option value="1">1 guest</option><option value="2" selected>2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option><option value="5">5 guests</option><option value="6">6 guests</option><option value="7">7 guests</option><option value="8">8 guests</option><option value="9">9 guests</option><option value="10">10 guests</option><option value="11">11 guests</option><option value="12">12 guests</option></select></div></div>
-            <button class="button button-primary" type="submit">Find my experience {!! $icon('search') !!}</button>
+            <div class="finder-field"><?php echo $icon('compass'); ?><div><label for="finder-category">Your kind of escape</label><select id="finder-category" name="category"><option value="all">A little of everything</option><option value="adventure">A little adventure</option><option value="food">Food & culture</option><option value="relax">Time to slow down</option><option value="private">Something private</option></select></div></div>
+            <div class="finder-field"><?php echo $icon('calendar'); ?><div><label for="finder-date">Your preferred day</label><input id="finder-date" name="date" type="date" aria-describedby="finder-note"></div></div>
+            <div class="finder-field"><?php echo $icon('users'); ?><div><label for="finder-guests">Good company</label><select id="finder-guests" name="guests"><option value="1">1 guest</option><option value="2" selected>2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option><option value="5">5 guests</option><option value="6">6 guests</option><option value="7">7 guests</option><option value="8">8 guests</option><option value="9">9 guests</option><option value="10">10 guests</option><option value="11">11 guests</option><option value="12">12 guests</option></select></div></div>
+            <button class="button button-primary" type="submit">Find my experience <?php echo $icon('search'); ?></button>
             <p id="finder-note" class="sr-only">Your date and guest count will be carried into the request form. This is not a live availability search.</p>
         </form>
     </div>
     <div class="container benefit-strip" aria-label="A simpler way to plan">
-        <div class="benefit">{!! $icon('compass') !!}<div><strong>A day that feels like you</strong><span>Adventure, culture, or a slower pace</span></div></div>
-        <div class="benefit">{!! $icon('chat') !!}<div><strong>A conversation, not a checkout</strong><span>Request first. Confirm the details together.</span></div></div>
-        <div class="benefit">{!! $icon('heart') !!}<div><strong>Room for the little moments</strong><span>Because the best part is how it feels</span></div></div>
+        <div class="benefit"><?php echo $icon('compass'); ?><div><strong>A day that feels like you</strong><span>Adventure, culture, or a slower pace</span></div></div>
+        <div class="benefit"><?php echo $icon('chat'); ?><div><strong>A conversation, not a checkout</strong><span>Request first. Confirm the details together.</span></div></div>
+        <div class="benefit"><?php echo $icon('heart'); ?><div><strong>Room for the little moments</strong><span>Because the best part is how it feels</span></div></div>
     </div>
     <section class="decorated-section section" id="about" aria-labelledby="about-title">
         <div class="ambient-decor ambient-decor--about" aria-hidden="true">
@@ -1621,21 +1577,21 @@ Do not remove the preview warnings merely to make an unconnected form look live.
         </div>
         <div class="container about-grid">
             <div class="about-photos reveal">
-                <img class="about-main" src="{{ $img($photos['camp'], 850) }}" width="650" height="850" loading="lazy" decoding="async" alt="An inviting Moroccan terrace overlooking the Agafay hills">
-                <img class="about-secondary" src="{{ $img($photos['tea'], 600) }}" width="420" height="600" loading="lazy" decoding="async" alt="Mint tea being poured at a Moroccan desert camp">
-                <div class="about-stamp" aria-hidden="true">{!! $icon('sunset') !!}</div>
+                <img class="about-main" src="<?php echo e($img($photos['camp'], 850)); ?>" width="650" height="850" loading="lazy" decoding="async" alt="An inviting Moroccan terrace overlooking the Agafay hills">
+                <img class="about-secondary" src="<?php echo e($img($photos['tea'], 600)); ?>" width="420" height="600" loading="lazy" decoding="async" alt="Mint tea being poured at a Moroccan desert camp">
+                <div class="about-stamp" aria-hidden="true"><?php echo $icon('sunset'); ?></div>
                 <span class="about-caption">A little closer<br>to the real thing.</span>
             </div>
             <div class="about-copy reveal">
                 <div class="eyebrow">Our story, your next chapter</div>
                 <h2 id="about-title">Not just a place.<br><em>A way to feel.</em></h2>
                 <p class="section-intro">We believe the best travel days are not always the busiest ones. Sometimes they are a quiet trail, an open horizon, and a warm welcome over a glass of mint tea.</p>
-                <p class="section-intro">That is the idea behind {{ $site['name'] }}: a collection of experiences for slowing down, trying something new, and making a little more of your time in Morocco.</p>
+                <p class="section-intro">That is the idea behind <?php echo e($site['name']); ?>: a collection of experiences for slowing down, trying something new, and making a little more of your time in Morocco.</p>
                 <div class="about-points">
-                    <div class="about-point">{!! $icon('check') !!}<span>Find your own<br>kind of adventure</span></div>
-                    <div class="about-point">{!! $icon('check') !!}<span>Make space for<br>something memorable</span></div>
+                    <div class="about-point"><?php echo $icon('check'); ?><span>Find your own<br>kind of adventure</span></div>
+                    <div class="about-point"><?php echo $icon('check'); ?><span>Make space for<br>something memorable</span></div>
                 </div>
-                <div class="about-signature"><span>See you beyond the city.</span><a class="text-link" href="#experiences">Find your moment {!! $icon('arrow-up') !!}</a></div>
+                <div class="about-signature"><span>See you beyond the city.</span><a class="text-link" href="#experiences">Find your moment <?php echo $icon('arrow-up'); ?></a></div>
             </div>
         </div>
     </section>
@@ -1657,49 +1613,49 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             <div class="collection-toolbar">
                 <div class="filter-row">
                     <div class="filter-chips" role="group" aria-label="Filter by experience category">
-                        @foreach ($categories as $key => $label)
-                        <button class="filter-chip" type="button" data-category="{{ $key }}" aria-pressed="{{ $key === 'all' ? 'true' : 'false' }}">{{ $label }}</button>
-                        @endforeach
+                        <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <button class="filter-chip" type="button" data-category="<?php echo e($key); ?>" aria-pressed="<?php echo e($key === 'all' ? 'true' : 'false'); ?>"><?php echo e($label); ?></button>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
-                    <button class="filter-chip filter-saved" type="button" id="saved-filter" aria-pressed="false">{!! $icon('heart') !!} Saved <span id="saved-count">0</span></button>
+                    <button class="filter-chip filter-saved" type="button" id="saved-filter" aria-pressed="false"><?php echo $icon('heart'); ?> Saved <span id="saved-count">0</span></button>
                 </div>
                 <div class="collection-search-row">
-                    <div class="collection-search">{!! $icon('search') !!}<label class="sr-only" for="package-search">Search experiences</label><input id="package-search" type="search" placeholder="Find a little adventure…" maxlength="100" autocomplete="off"></div>
-                    <div class="collection-tools"><span id="result-count" class="result-count" role="status" aria-live="polite">{{ count($packages) }} experiences to discover</span><label class="sr-only" for="package-sort">Sort experiences</label><select class="sort-select" id="package-sort"><option value="featured">Our collection order</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option></select></div>
+                    <div class="collection-search"><?php echo $icon('search'); ?><label class="sr-only" for="package-search">Search experiences</label><input id="package-search" type="search" placeholder="Find a little adventure…" maxlength="100" autocomplete="off"></div>
+                    <div class="collection-tools"><span id="result-count" class="result-count" role="status" aria-live="polite"><?php echo e(count($packages)); ?> experiences to discover</span><label class="sr-only" for="package-sort">Sort experiences</label><select class="sort-select" id="package-sort"><option value="featured">Our collection order</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option></select></div>
                 </div>
             </div>
             <div class="packages-grid" id="packages-grid">
-                @foreach ($packages as $package)
-                <article class="package-card" data-package="{{ $package['id'] }}" aria-labelledby="title-{{ $package['id'] }}">
+                <?php $__currentLoopData = $packages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $package): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <article class="package-card" data-package="<?php echo e($package['id']); ?>" aria-labelledby="title-<?php echo e($package['id']); ?>">
                     <div class="package-media">
-                        <button class="package-image-button" type="button" data-details="{{ $package['id'] }}" aria-label="View {{ $package['title'] }} details"><img src="{{ $img($package['image'], 800) }}" srcset="{{ $img($package['image'], 500) }} 500w, {{ $img($package['image'], 800) }} 800w" sizes="(max-width:480px) calc(100vw - 40px), (max-width:950px) 45vw, 30vw" width="800" height="525" loading="lazy" decoding="async" alt="{{ $package['alt'] }}"></button>
-                        <span class="package-tag">{{ $package['tag'] }}</span>
-                        <button class="icon-button save-button" type="button" data-save="{{ $package['id'] }}" aria-label="Save {{ $package['title'] }}" aria-pressed="false">{!! $icon('heart') !!}</button>
+                        <button class="package-image-button" type="button" data-details="<?php echo e($package['id']); ?>" aria-label="View <?php echo e($package['title']); ?> details"><img src="<?php echo e($img($package['image'], 800)); ?>" srcset="<?php echo e($img($package['image'], 500)); ?> 500w, <?php echo e($img($package['image'], 800)); ?> 800w" sizes="(max-width:480px) calc(100vw - 40px), (max-width:950px) 45vw, 30vw" width="800" height="525" loading="lazy" decoding="async" alt="<?php echo e($package['alt']); ?>"></button>
+                        <span class="package-tag"><?php echo e($package['tag']); ?></span>
+                        <button class="icon-button save-button" type="button" data-save="<?php echo e($package['id']); ?>" aria-label="Save <?php echo e($package['title']); ?>" aria-pressed="false"><?php echo $icon('heart'); ?></button>
                     </div>
                     <div class="package-body">
-                        <div class="package-category">{{ $package['categoryLabel'] }}</div>
-                        <h3 class="package-title" id="title-{{ $package['id'] }}"><button type="button" data-details="{{ $package['id'] }}">{{ $package['title'] }}</button></h3>
-                        <p class="package-teaser">{{ $package['teaser'] }}</p>
-                        <div class="package-meta"><span>{!! $icon('clock') !!} {{ $package['duration'] }}</span><span>{!! $icon('pin') !!} Agafay, Morocco</span></div>
-                        <div class="package-bottom"><div class="package-price"><small>From</small><strong>{{ $money($package['price']) }}</strong><span>/ guest</span></div><button class="details-button" type="button" data-details="{{ $package['id'] }}" aria-label="Explore {{ $package['title'] }}">Explore {!! $icon('arrow-up') !!}</button></div>
+                        <div class="package-category"><?php echo e($package['categoryLabel']); ?></div>
+                        <h3 class="package-title" id="title-<?php echo e($package['id']); ?>"><button type="button" data-details="<?php echo e($package['id']); ?>"><?php echo e($package['title']); ?></button></h3>
+                        <p class="package-teaser"><?php echo e($package['teaser']); ?></p>
+                        <div class="package-meta"><span><?php echo $icon('clock'); ?> <?php echo e($package['duration']); ?></span><span><?php echo $icon('pin'); ?> Agafay, Morocco</span></div>
+                        <div class="package-bottom"><div class="package-price"><small>From</small><strong><?php echo e($money($package['price'])); ?></strong><span>/ guest</span></div><button class="details-button" type="button" data-details="<?php echo e($package['id']); ?>" aria-label="Explore <?php echo e($package['title']); ?>">Explore <?php echo $icon('arrow-up'); ?></button></div>
                     </div>
                 </article>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 <aside class="custom-card" id="custom-card">
-                    <span class="custom-card-symbol" aria-hidden="true">{!! $icon('sun') !!}</span>
-                    <div><div class="eyebrow">Some moments deserve their own plan</div><h3>Not a package person?<br>Let’s make it yours.</h3><p>A birthday, a group of friends, or a beautiful idea you have not quite put into words. Tell us what you are dreaming of.</p><a class="button" href="#contact" data-custom-inquiry>Create my kind of day {!! $icon('arrow-up') !!}</a></div>
+                    <span class="custom-card-symbol" aria-hidden="true"><?php echo $icon('sun'); ?></span>
+                    <div><div class="eyebrow">Some moments deserve their own plan</div><h3>Not a package person?<br>Let’s make it yours.</h3><p>A birthday, a group of friends, or a beautiful idea you have not quite put into words. Tell us what you are dreaming of.</p><a class="button" href="#contact" data-custom-inquiry>Create my kind of day <?php echo $icon('arrow-up'); ?></a></div>
                 </aside>
             </div>
-            <div id="empty-state" class="empty-state" hidden>{!! $icon('compass') !!}<h3>A different path, perhaps?</h3><p id="empty-message">No experiences match these filters. Try another category or search.</p><button class="button button-green" id="reset-filters" type="button">Show all experiences {!! $icon('arrow') !!}</button></div>
-            @if ($site['demoContent'])
-            <p class="collection-note">Sample rates in {{ $site['currency'] }} per guest. Photos and itineraries are illustrative. Transfers, availability, and final prices must be confirmed.</p>
-            @else
-            <p class="collection-note">Rates in {{ $site['currency'] }} per guest. Request availability and a final quote before making travel arrangements.</p>
-            @endif
+            <div id="empty-state" class="empty-state" hidden><?php echo $icon('compass'); ?><h3>A different path, perhaps?</h3><p id="empty-message">No experiences match these filters. Try another category or search.</p><button class="button button-green" id="reset-filters" type="button">Show all experiences <?php echo $icon('arrow'); ?></button></div>
+            <?php if($site['demoContent']): ?>
+            <p class="collection-note">Sample rates in <?php echo e($site['currency']); ?> per guest. Photos and itineraries are illustrative. Transfers, availability, and final prices must be confirmed.</p>
+            <?php else: ?>
+            <p class="collection-note">Rates in <?php echo e($site['currency']); ?> per guest. Request availability and a final quote before making travel arrangements.</p>
+            <?php endif; ?>
             <noscript><p class="collection-note">JavaScript is required for filters, activity details, saved experiences, and forms. Enable it to use the booking interface.</p></noscript>
         </div>
     </section>
-    @if ($featuredPackage)
+    <?php if($featuredPackage): ?>
     <section class="decorated-section signature" aria-labelledby="signature-title">
         <div class="ambient-decor ambient-decor--signature" aria-hidden="true">
             <svg class="decor-mark decor-mark--dots decor-slot-a" viewBox="0 0 93 63" aria-hidden="true" focusable="false"><use href="#decor-dots"></use></svg>
@@ -1709,17 +1665,17 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             <svg class="decor-mark decor-mark--trail decor-slot-e decor-secondary" viewBox="0 0 260 100" aria-hidden="true" focusable="false"><use href="#decor-trail"></use></svg>
         </div>
         <div class="container signature-panel reveal">
-            <div class="signature-media"><img src="{{ $img($photos['picnic'], 1000) }}" width="900" height="1100" loading="lazy" decoding="async" alt="A couple enjoying the sunset across Agafay"><span class="signature-image-label">The city can wait.</span></div>
+            <div class="signature-media"><img src="<?php echo e($img($photos['picnic'], 1000)); ?>" width="900" height="1100" loading="lazy" decoding="async" alt="A couple enjoying the sunset across Agafay"><span class="signature-image-label">The city can wait.</span></div>
             <div class="signature-body">
                 <div class="eyebrow">The signature escape</div>
                 <h2 id="signature-title">A little adventure.<br>A beautiful sunset.<br><em>All in one day.</em></h2>
                 <p>Follow the trails. Ride into the evening. Then gather around the table as the day turns into one of your favorite travel stories.</p>
-                <div class="signature-includes"><span>{!! $icon('compass') !!} Quad adventure</span><span>{!! $icon('sunset') !!} Camel ride</span><span>{!! $icon('cup') !!} Dinner & tea</span></div>
-                <div class="signature-bottom"><div class="signature-price"><small>{{ $featuredPackage['duration'] }} · A full afternoon of memories</small><strong>{{ $money($featuredPackage['price']) }}</strong><span>from / guest</span></div><button class="button" type="button" data-details="{{ $featuredPackage['id'] }}">Explore this escape {!! $icon('arrow-up') !!}</button></div>
+                <div class="signature-includes"><span><?php echo $icon('compass'); ?> Quad adventure</span><span><?php echo $icon('sunset'); ?> Camel ride</span><span><?php echo $icon('cup'); ?> Dinner & tea</span></div>
+                <div class="signature-bottom"><div class="signature-price"><small><?php echo e($featuredPackage['duration']); ?> · A full afternoon of memories</small><strong><?php echo e($money($featuredPackage['price'])); ?></strong><span>from / guest</span></div><button class="button" type="button" data-details="<?php echo e($featuredPackage['id']); ?>">Explore this escape <?php echo $icon('arrow-up'); ?></button></div>
             </div>
         </div>
     </section>
-    @endif
+    <?php endif; ?>
     <section class="decorated-section how" aria-labelledby="how-title">
         <div class="ambient-decor ambient-decor--steps" aria-hidden="true">
             <svg class="decor-mark decor-mark--sun decor-slot-a" viewBox="0 0 160 160" aria-hidden="true" focusable="false" data-decor-drift><use href="#decor-sun"></use></svg>
@@ -1746,12 +1702,12 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             <svg class="decor-mark decor-mark--sparkles decor-slot-e decor-secondary" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#decor-sparkles"></use></svg>
         </div>
         <div class="container">
-            <div class="gallery-header reveal"><div><div class="eyebrow">A little visual daydream</div><h2 id="moments-title">Wish you were <em>here.</em></h2><p>Wide horizons, warm welcomes, and the moments in between.</p></div><a class="text-link" href="#experiences">Find your moment {!! $icon('arrow-up') !!}</a></div>
+            <div class="gallery-header reveal"><div><div class="eyebrow">A little visual daydream</div><h2 id="moments-title">Wish you were <em>here.</em></h2><p>Wide horizons, warm welcomes, and the moments in between.</p></div><a class="text-link" href="#experiences">Find your moment <?php echo $icon('arrow-up'); ?></a></div>
             <div class="gallery-grid">
-                <button class="gallery-item" type="button" data-gallery="{{ $photos['landscape'] }}" data-caption="Room to wander" data-credit="https://www.pexels.com/photo/35910045/" aria-label="View full photograph: Room to wander"><img src="{{ $img($photos['landscape'], 700) }}" width="600" height="750" loading="lazy" decoding="async" alt="A small figure walking through the vast Agafay hills"><span>Room to wander {!! $icon('arrow-up') !!}</span></button>
-                <button class="gallery-item" type="button" data-gallery="{{ $photos['tea'] }}" data-caption="One more cup" data-credit="https://www.pexels.com/photo/36579351/" aria-label="View full photograph: One more cup"><img src="{{ $img($photos['tea'], 650) }}" width="600" height="750" loading="lazy" decoding="async" alt="Tea being poured from a silver Moroccan teapot"><span>One more cup {!! $icon('arrow-up') !!}</span></button>
-                <button class="gallery-item" type="button" data-gallery="{{ $photos['camel'] }}" data-caption="Take the scenic route" data-credit="https://www.pexels.com/photo/36579390/" aria-label="View full photograph: Take the scenic route"><img src="{{ $img($photos['camel'], 700) }}" width="600" height="750" loading="lazy" decoding="async" alt="Camels with colorful woven saddles in Agafay"><span>The scenic route {!! $icon('arrow-up') !!}</span></button>
-                <button class="gallery-item" type="button" data-gallery="{{ $photos['breakfast'] }}" data-caption="Mornings, unhurried" data-credit="https://www.pexels.com/photo/18160499/" aria-label="View full photograph: Mornings, unhurried"><img src="{{ $img($photos['breakfast'], 650) }}" width="600" height="750" loading="lazy" decoding="async" alt="A generous breakfast with a view of the desert"><span>Mornings, unhurried {!! $icon('arrow-up') !!}</span></button>
+                <button class="gallery-item" type="button" data-gallery="<?php echo e($photos['landscape']); ?>" data-caption="Room to wander" data-credit="https://www.pexels.com/photo/35910045/" aria-label="View full photograph: Room to wander"><img src="<?php echo e($img($photos['landscape'], 700)); ?>" width="600" height="750" loading="lazy" decoding="async" alt="A small figure walking through the vast Agafay hills"><span>Room to wander <?php echo $icon('arrow-up'); ?></span></button>
+                <button class="gallery-item" type="button" data-gallery="<?php echo e($photos['tea']); ?>" data-caption="One more cup" data-credit="https://www.pexels.com/photo/36579351/" aria-label="View full photograph: One more cup"><img src="<?php echo e($img($photos['tea'], 650)); ?>" width="600" height="750" loading="lazy" decoding="async" alt="Tea being poured from a silver Moroccan teapot"><span>One more cup <?php echo $icon('arrow-up'); ?></span></button>
+                <button class="gallery-item" type="button" data-gallery="<?php echo e($photos['camel']); ?>" data-caption="Take the scenic route" data-credit="https://www.pexels.com/photo/36579390/" aria-label="View full photograph: Take the scenic route"><img src="<?php echo e($img($photos['camel'], 700)); ?>" width="600" height="750" loading="lazy" decoding="async" alt="Camels with colorful woven saddles in Agafay"><span>The scenic route <?php echo $icon('arrow-up'); ?></span></button>
+                <button class="gallery-item" type="button" data-gallery="<?php echo e($photos['breakfast']); ?>" data-caption="Mornings, unhurried" data-credit="https://www.pexels.com/photo/18160499/" aria-label="View full photograph: Mornings, unhurried"><img src="<?php echo e($img($photos['breakfast'], 650)); ?>" width="600" height="750" loading="lazy" decoding="async" alt="A generous breakfast with a view of the desert"><span>Mornings, unhurried <?php echo $icon('arrow-up'); ?></span></button>
             </div>
         </div>
     </section>
@@ -1765,18 +1721,18 @@ Do not remove the preview warnings merely to make an unconnected form look live.
         </div>
         <div class="container">
             <div class="stories-header reveal"><div class="eyebrow">The stories we make room for</div><h2 id="stories-title">Good days.<br><em>Even better memories.</em></h2>
-                @if ($site['demoContent'])
-                <span class="sample-label">{!! $icon('info') !!} Design preview · illustrative guest stories</span>
-                @endif
+                <?php if($site['demoContent']): ?>
+                <span class="sample-label"><?php echo $icon('info'); ?> Design preview · illustrative guest stories</span>
+                <?php endif; ?>
             </div>
             <div class="review-grid">
-                @foreach ($reviews as $review)
-                <article class="review-card reveal">{!! $icon('quote') !!}<blockquote>“{{ $review['quote'] }}”</blockquote><div class="review-author"><span class="review-initials {{ $review['color'] }}" aria-hidden="true">{{ $review['initials'] }}</span><div><strong>{{ $review['name'] }}</strong><small>{{ $review['trip'] }}</small></div></div></article>
-                @endforeach
+                <?php $__currentLoopData = $reviews; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $review): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <article class="review-card reveal"><?php echo $icon('quote'); ?><blockquote>“<?php echo e($review['quote']); ?>”</blockquote><div class="review-author"><span class="review-initials <?php echo e($review['color']); ?>" aria-hidden="true"><?php echo e($review['initials']); ?></span><div><strong><?php echo e($review['name']); ?></strong><small><?php echo e($review['trip']); ?></small></div></div></article>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
-            @if ($site['demoContent'])
+            <?php if($site['demoContent']): ?>
             <p class="review-note">These are sample testimonials for the design, not verified customer reviews. Replace them with real feedback before launch.</p>
-            @endif
+            <?php endif; ?>
         </div>
     </section>
     <section class="decorated-section faq-section" id="faq" aria-labelledby="faq-title">
@@ -1788,11 +1744,11 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             <svg class="decor-mark decor-mark--sparkles decor-slot-e decor-secondary" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#decor-sparkles"></use></svg>
         </div>
         <div class="container faq-grid">
-            <div class="faq-intro reveal"><div class="eyebrow">Before you head out</div><h2 id="faq-title">A few things<br><em>worth knowing.</em></h2><p>A little clarity makes for a much more relaxed day. Here are the questions that help you get started.</p><a class="text-link" href="#contact">Have another question? {!! $icon('arrow-up') !!}</a></div>
+            <div class="faq-intro reveal"><div class="eyebrow">Before you head out</div><h2 id="faq-title">A few things<br><em>worth knowing.</em></h2><p>A little clarity makes for a much more relaxed day. Here are the questions that help you get started.</p><a class="text-link" href="#contact">Have another question? <?php echo $icon('arrow-up'); ?></a></div>
             <div class="faq-list">
-                @foreach ($faqs as $faq)
-                <details><summary>{{ $faq[0] }} {!! $icon('plus') !!}</summary><p>{{ $faq[1] }}</p></details>
-                @endforeach
+                <?php $__currentLoopData = $faqs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $faq): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <details><summary><?php echo e($faq[0]); ?> <?php echo $icon('plus'); ?></summary><p><?php echo e($faq[1]); ?></p></details>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
         </div>
     </section>
@@ -1806,26 +1762,26 @@ Do not remove the preview warnings merely to make an unconnected form look live.
         </div>
         <div class="container contact-grid">
             <div class="contact-copy reveal"><div class="eyebrow">Good days start with a hello</div><h2 id="contact-title">Tell us what<br>you’re <em>dreaming of.</em></h2><p>Not sure which experience to choose? Planning something special? Share a little about your trip, and let’s give your idea a place to begin.</p>
-                <div class="contact-detail">{!! $icon('pin') !!}<div><strong>Marrakech & Agafay, Morocco</strong><small>The setting for your next travel story</small></div></div>
-                <div class="contact-detail">{!! $icon('chat') !!}<div><strong>A little help with the details</strong><small>Your dates, your group, your kind of day</small></div></div>
-                @if ($site['email'])
-                <div class="contact-detail">{!! $icon('mail') !!}<a href="mailto:{{ $site['email'] }}">{{ $site['email'] }}</a></div>
-                @endif
-                @if ($site['phone'])
-                <div class="contact-detail">{!! $icon('phone') !!}<a href="tel:{{ preg_replace('/[^+0-9]/', '', $site['phone']) }}">{{ $site['phone'] }}</a></div>
-                @endif
-                @if ($site['whatsapp'])
-                <a class="text-link" href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $site['whatsapp']) }}" target="_blank" rel="noopener noreferrer">Start a WhatsApp conversation {!! $icon('arrow-up') !!}</a>
-                @endif
-                <div class="contact-mini"><img src="{{ $img($photos['quadwide'], 700) }}" width="700" height="350" loading="lazy" decoding="async" alt="A guided quad group moving across the Agafay landscape"><span>Your kind of adventure is out there.</span></div>
+                <div class="contact-detail"><?php echo $icon('pin'); ?><div><strong>Marrakech & Agafay, Morocco</strong><small>The setting for your next travel story</small></div></div>
+                <div class="contact-detail"><?php echo $icon('chat'); ?><div><strong>A little help with the details</strong><small>Your dates, your group, your kind of day</small></div></div>
+                <?php if($site['email']): ?>
+                <div class="contact-detail"><?php echo $icon('mail'); ?><a href="mailto:<?php echo e($site['email']); ?>"><?php echo e($site['email']); ?></a></div>
+                <?php endif; ?>
+                <?php if($site['phone']): ?>
+                <div class="contact-detail"><?php echo $icon('phone'); ?><a href="tel:<?php echo e(preg_replace('/[^+0-9]/', '', $site['phone'])); ?>"><?php echo e($site['phone']); ?></a></div>
+                <?php endif; ?>
+                <?php if($site['whatsapp']): ?>
+                <a class="text-link" href="https://wa.me/<?php echo e(preg_replace('/[^0-9]/', '', $site['whatsapp'])); ?>" target="_blank" rel="noopener noreferrer">Start a WhatsApp conversation <?php echo $icon('arrow-up'); ?></a>
+                <?php endif; ?>
+                <div class="contact-mini"><img src="<?php echo e($img($photos['quadwide'], 700)); ?>" width="700" height="350" loading="lazy" decoding="async" alt="A guided quad group moving across the Agafay landscape"><span>Your kind of adventure is out there.</span></div>
             </div>
             <div class="contact-form-card">
                 <h3 class="form-heading">Let’s plan something lovely.</h3><p class="form-subtitle">A few details are all it takes to get started.</p>
-                @if (!$contactEndpoint)
-                <div class="form-preview">{!! $icon('info') !!}<span>Preview form. Your message will not be sent or saved yet.</span></div>
-                @endif
-                <form id="contact-form" method="post" action="{{ $contactEndpoint ?: '#' }}" novalidate>
-                    @csrf
+                <?php if(!$contactEndpoint): ?>
+                <div class="form-preview"><?php echo $icon('info'); ?><span>Preview form. Your message will not be sent or saved yet.</span></div>
+                <?php endif; ?>
+                <form id="contact-form" method="post" action="<?php echo e($contactEndpoint ?: '#'); ?>" novalidate>
+                    <?php echo csrf_field(); ?>
                     <div id="contact-errors" class="form-error" role="alert" tabindex="-1" hidden></div>
                     <div class="honeypot" aria-hidden="true"><label for="contact-company">Leave this field empty</label><input id="contact-company" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
                     <div class="form-grid">
@@ -1836,7 +1792,7 @@ Do not remove the preview warnings merely to make an unconnected form look live.
                         <div class="field full"><label for="contact-message">A little about your plans *</label><textarea id="contact-message" name="message" placeholder="Your dates, your group, your dream day…" required minlength="10" maxlength="2000" rows="4"></textarea></div>
                     </div>
                     <label class="check-field"><input name="consent" type="checkbox" value="1" required><span>I agree to be contacted about this inquiry. <button class="inline-button" type="button" data-privacy>How my details are used</button>.</span></label>
-                    <button class="button button-green form-submit" type="submit"><span>{{ $contactEndpoint ? 'Send my message' : 'Preview my message' }}</span>{!! $icon('arrow-up') !!}</button>
+                    <button class="button button-green form-submit" type="submit"><span><?php echo e($contactEndpoint ? 'Send my message' : 'Preview my message'); ?></span><?php echo $icon('arrow-up'); ?></button>
                     <p class="form-micro">No payment. No obligation. Just a conversation about your plans.</p>
                 </form>
             </div>
@@ -1850,7 +1806,7 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             <svg class="decor-mark decor-mark--desert decor-slot-d" viewBox="0 0 640 190" aria-hidden="true" focusable="false"><use href="#decor-desert"></use></svg>
             <svg class="decor-mark decor-mark--sparkles decor-slot-e decor-secondary" viewBox="0 0 120 120" aria-hidden="true" focusable="false"><use href="#decor-sparkles"></use></svg>
             <svg class="decor-mark decor-mark--palm decor-slot-f decor-secondary" viewBox="0 0 150 210" aria-hidden="true" focusable="false"><use href="#decor-palm"></use></svg>
-        </div><div class="container reveal">{!! $icon('sun') !!}<h2 id="closing-title">Come for the day.<br>Take the feeling home.</h2><p>Your next favorite travel story might start right here.</p><a class="button" href="#experiences">Find my Agafay moment {!! $icon('arrow-up') !!}</a></div></section>
+        </div><div class="container reveal"><?php echo $icon('sun'); ?><h2 id="closing-title">Come for the day.<br>Take the feeling home.</h2><p>Your next favorite travel story might start right here.</p><a class="button" href="#experiences">Find my Agafay moment <?php echo $icon('arrow-up'); ?></a></div></section>
 </main>
 <footer class="decorated-section site-footer">
         <div class="ambient-decor ambient-decor--footer" aria-hidden="true">
@@ -1861,34 +1817,34 @@ Do not remove the preview warnings merely to make an unconnected form look live.
         </div>
     <div class="container">
         <div class="footer-main">
-            <div class="footer-brand"><a class="brand" href="#home" aria-label="{{ $site['name'] }} home"><svg class="brand-symbol" viewBox="0 0 52 52" fill="none" aria-hidden="true"><path d="M7 43V25a19 19 0 0 1 38 0v18" stroke="currentColor" stroke-width="1.5"/><circle cx="26" cy="22" r="7" fill="currentColor"/><path d="M9 39c13-14 20-5 34-7M9 44c15-12 23-3 34-7" stroke="currentColor" stroke-width="1.5"/></svg><span><span class="brand-name">{{ $site['name'] }}</span><span class="brand-tagline">{{ $site['tagline'] }}</span></span></a><p>For the days that feel a little different.<br>Thoughtful escapes, open horizons,<br>and more of what makes Morocco special.</p></div>
+            <div class="footer-brand"><a class="brand" href="#home" aria-label="<?php echo e($site['name']); ?> home"><svg class="brand-symbol" viewBox="0 0 52 52" fill="none" aria-hidden="true"><path d="M7 43V25a19 19 0 0 1 38 0v18" stroke="currentColor" stroke-width="1.5"/><circle cx="26" cy="22" r="7" fill="currentColor"/><path d="M9 39c13-14 20-5 34-7M9 44c15-12 23-3 34-7" stroke="currentColor" stroke-width="1.5"/></svg><span><span class="brand-name"><?php echo e($site['name']); ?></span><span class="brand-tagline"><?php echo e($site['tagline']); ?></span></span></a><p>For the days that feel a little different.<br>Thoughtful escapes, open horizons,<br>and more of what makes Morocco special.</p></div>
             <div class="footer-column"><h3>A little exploring</h3><a href="#experiences">All experiences</a><a href="#about">Our story</a><a href="#moments">The moments</a><a href="#stories">Guest stories</a></div>
             <div class="footer-column"><h3>A little help</h3><a href="#faq">Before you go</a><a href="#contact">Get in touch</a><a href="#contact" data-custom-inquiry>Private & group trips</a><button type="button" data-privacy>Privacy & your details</button></div>
             <div class="footer-column"><h3>Somewhere worth going</h3><span>Marrakech & Agafay<br>Morocco</span>
-                @if ($site['email'])
-                <a href="mailto:{{ $site['email'] }}">{{ $site['email'] }}</a>
-                @endif
+                <?php if($site['email']): ?>
+                <a href="mailto:<?php echo e($site['email']); ?>"><?php echo e($site['email']); ?></a>
+                <?php endif; ?>
                 <small class="footer-note">A request starts the conversation.<br>Your operator confirms the final details.</small>
             </div>
         </div>
-        <div class="footer-bottom"><span>© {{ date('Y') }} {{ $site['name'] }}. A different kind of day.</span><span>Photography: <a href="https://www.pexels.com/search/agafay/" target="_blank" rel="noopener noreferrer">Pexels</a> · Illustrative locations</span><a class="text-link" href="#home">Back to the sunshine {!! $icon('arrow-up') !!}</a></div>
-        @if ($site['demoContent'])
+        <div class="footer-bottom"><span>© <?php echo e(date('Y')); ?> <?php echo e($site['name']); ?>. A different kind of day.</span><span>Photography: <a href="https://www.pexels.com/search/agafay/" target="_blank" rel="noopener noreferrer">Pexels</a> · Illustrative locations</span><a class="text-link" href="#home">Back to the sunshine <?php echo $icon('arrow-up'); ?></a></div>
+        <?php if($site['demoContent']): ?>
         <p class="footer-preview">This is a design preview with sample brand content, rates, and testimonials. Confirm the real business details, policies, suppliers, and images before publishing. No verified ratings are claimed.</p>
-        @endif
+        <?php endif; ?>
     </div>
 </footer>
-<div class="mobile-bookbar" id="mobile-bookbar"><div><strong>A day worth remembering.</strong><small>Find your kind of Agafay.</small></div><a class="button button-primary" href="#experiences">Explore {!! $icon('arrow-up') !!}</a></div>
+<div class="mobile-bookbar" id="mobile-bookbar"><div><strong>A day worth remembering.</strong><small>Find your kind of Agafay.</small></div><a class="button button-primary" href="#experiences">Explore <?php echo $icon('arrow-up'); ?></a></div>
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-{{-- Activity details: one reusable dialog, populated safely from the package data. --}}
+
 <dialog id="experience-dialog" class="experience-dialog" aria-labelledby="detail-title">
-    <button class="icon-button dialog-close" type="button" data-close aria-label="Close experience details">{!! $icon('close') !!}</button>
+    <button class="icon-button dialog-close" type="button" data-close aria-label="Close experience details"><?php echo $icon('close'); ?></button>
     <div class="experience-layout">
-        <div class="experience-image"><img id="detail-image" alt="" width="800" height="1100"><div class="experience-image-caption"><span class="eyebrow" id="detail-tag"></span><strong>A day to call<br>your own.</strong><small>{!! $icon('pin') !!} Agafay, Morocco</small></div></div>
+        <div class="experience-image"><img id="detail-image" alt="" width="800" height="1100"><div class="experience-image-caption"><span class="eyebrow" id="detail-tag"></span><strong>A day to call<br>your own.</strong><small><?php echo $icon('pin'); ?> Agafay, Morocco</small></div></div>
         <div class="experience-content">
             <div class="experience-scroll" id="experience-scroll">
                 <div class="experience-heading"><div class="eyebrow" id="detail-category"></div><h2 id="detail-title" tabindex="-1">Your experience</h2></div>
-                <div class="detail-meta"><span>{!! $icon('clock') !!}<span id="detail-duration"></span></span><span>{!! $icon('sun') !!}<span id="detail-time"></span></span><span>{!! $icon('users') !!}<span id="detail-pace"></span></span></div>
+                <div class="detail-meta"><span><?php echo $icon('clock'); ?><span id="detail-duration"></span></span><span><?php echo $icon('sun'); ?><span id="detail-time"></span></span><span><?php echo $icon('users'); ?><span id="detail-pace"></span></span></div>
                 <div class="detail-tabs" role="tablist" aria-label="Experience information">
                     <button class="detail-tab" id="tab-overview" type="button" role="tab" aria-selected="true" aria-controls="panel-overview" tabindex="0">The experience</button>
                     <button class="detail-tab" id="tab-itinerary" type="button" role="tab" aria-selected="false" aria-controls="panel-itinerary" tabindex="-1">Your day</button>
@@ -1898,56 +1854,56 @@ Do not remove the preview warnings merely to make an unconnected form look live.
                 <div class="detail-panel" id="panel-itinerary" role="tabpanel" aria-labelledby="tab-itinerary" tabindex="0" hidden><ol class="itinerary-list" id="detail-itinerary"></ol></div>
                 <div class="detail-panel" id="panel-notes" role="tabpanel" aria-labelledby="tab-notes" tabindex="0" hidden><ul class="detail-notes"><li id="detail-note"></li><li>Transfers are not included in the sample rate. Share your hotel or riad for a pickup quote.</li><li>Your operator must confirm the final price, availability, group capacity, and cancellation policy before booking.</li><li>Photos show the kind of experience, not a guaranteed camp or setup. Times and inclusions shown here are sample itinerary details.</li></ul></div>
             </div>
-            <div class="experience-footer"><div class="detail-price"><small>From / guest</small><strong id="detail-price"></strong></div><button class="button button-primary" id="detail-book" type="button">Request this experience {!! $icon('arrow-up') !!}</button></div>
+            <div class="experience-footer"><div class="detail-price"><small>From / guest</small><strong id="detail-price"></strong></div><button class="button button-primary" id="detail-book" type="button">Request this experience <?php echo $icon('arrow-up'); ?></button></div>
         </div>
     </div>
 </dialog>
 
-{{-- Request form: preview-only until a real same-origin endpoint is supplied. --}}
+
 <dialog id="booking-dialog" class="booking-dialog" aria-labelledby="booking-title">
-    <button class="icon-button dialog-close" type="button" data-close aria-label="Close booking form">{!! $icon('close') !!}</button>
+    <button class="icon-button dialog-close" type="button" data-close aria-label="Close booking form"><?php echo $icon('close'); ?></button>
     <div class="booking-header"><div class="eyebrow">Your next story starts here</div><h2 id="booking-title" tabindex="-1">Let’s make a day of it.</h2><p>Share your details. Your preferred date and final quote need confirmation.</p></div>
     <div class="booking-layout">
-        <form id="booking-form" method="post" action="{{ $bookingEndpoint ?: '#' }}" novalidate>
-            @csrf
+        <form id="booking-form" method="post" action="<?php echo e($bookingEndpoint ?: '#'); ?>" novalidate>
+            <?php echo csrf_field(); ?>
             <input id="booking-package-id" name="package_id" type="hidden">
             <input id="booking-package-name" name="package_name" type="hidden">
             <div class="honeypot" aria-hidden="true"><label for="booking-company">Leave this field empty</label><input id="booking-company" name="company_website" type="text" tabindex="-1" autocomplete="off"></div>
-            @if (!$bookingEndpoint)
-            <div class="form-preview">{!! $icon('info') !!}<span>Preview mode. No request will be sent or saved. Please use sample details when testing.</span></div>
-            @endif
+            <?php if(!$bookingEndpoint): ?>
+            <div class="form-preview"><?php echo $icon('info'); ?><span>Preview mode. No request will be sent or saved. Please use sample details when testing.</span></div>
+            <?php endif; ?>
             <div id="booking-errors" class="form-error" role="alert" tabindex="-1" hidden></div>
             <div class="form-grid">
                 <div class="field full"><label for="booking-name">Your full name *</label><input id="booking-name" name="customer_name" type="text" placeholder="How should we call you?" autocomplete="name" required minlength="2" maxlength="100"></div>
                 <div class="field"><label for="booking-email">Email address *</label><input id="booking-email" name="email" type="email" placeholder="you@example.com" autocomplete="email" inputmode="email" required maxlength="160"></div>
                 <div class="field"><label for="booking-phone">Phone / WhatsApp *</label><input id="booking-phone" name="phone" type="tel" placeholder="+212 6…" autocomplete="tel" inputmode="tel" required maxlength="25" aria-describedby="phone-hint"><small class="field-hint" id="phone-hint">Include your country code.</small></div>
                 <div class="field half-mobile"><label for="booking-date">Preferred date *</label><input id="booking-date" name="visit_date" type="date" required></div>
-                <div class="field half-mobile"><label for="booking-guests">Number of guests *</label><div class="stepper"><button id="guests-minus" type="button" aria-label="Remove one guest">{!! $icon('minus') !!}</button><input id="booking-guests" name="guests" type="number" value="2" min="1" max="12" step="1" inputmode="numeric" required><button id="guests-plus" type="button" aria-label="Add one guest">{!! $icon('plus') !!}</button></div></div>
+                <div class="field half-mobile"><label for="booking-guests">Number of guests *</label><div class="stepper"><button id="guests-minus" type="button" aria-label="Remove one guest"><?php echo $icon('minus'); ?></button><input id="booking-guests" name="guests" type="number" value="2" min="1" max="12" step="1" inputmode="numeric" required><button id="guests-plus" type="button" aria-label="Add one guest"><?php echo $icon('plus'); ?></button></div></div>
                 <div class="field"><label for="booking-contact-method">Contact me by *</label><select id="booking-contact-method" name="contact_method" required><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="phone">Phone call</option></select></div>
                 <div class="field"><label for="booking-hotel">Hotel / riad <span class="optional">(optional)</span></label><input id="booking-hotel" name="hotel" type="text" placeholder="For a pickup quote" maxlength="180"></div>
                 <div class="field full"><label for="booking-notes">Anything we should know? <span class="optional">(optional)</span></label><textarea id="booking-notes" name="notes" placeholder="Children’s ages, dietary needs, a special occasion…" rows="3" maxlength="1500"></textarea></div>
             </div>
             <label class="check-field"><input name="consent" type="checkbox" value="1" required><span>I agree to be contacted about this request. I understand this is not a confirmed booking. <button class="inline-button" type="button" data-privacy>Privacy details</button>.</span></label>
-            <button class="button button-primary form-submit" type="submit"><span>{{ $bookingEndpoint ? 'Send my booking request' : 'Preview my booking request' }}</span>{!! $icon('arrow-up') !!}</button>
+            <button class="button button-primary form-submit" type="submit"><span><?php echo e($bookingEndpoint ? 'Send my booking request' : 'Preview my booking request'); ?></span><?php echo $icon('arrow-up'); ?></button>
             <p class="form-micro">No payment is collected. Availability and your final quote come next.</p>
         </form>
         <aside class="booking-aside" aria-label="Your selected experience"><img id="booking-image" width="500" height="300" alt=""><div class="booking-aside-body"><small>Your chosen escape</small><h3 id="booking-package-title"></h3><div class="booking-summary-line optional-summary"><span>Duration</span><strong id="booking-duration"></strong></div><div class="booking-summary-line"><span>Your preferred day</span><strong id="booking-date-summary">Choose a date</strong></div><div class="booking-summary-line"><span id="booking-rate-label">Rate × guests</span><strong id="booking-rate"></strong></div><div class="booking-total"><span>Estimated total</span><strong id="booking-total"></strong></div><p>Estimate only. Transfers and optional extras are not included. The operator confirms the final amount.</p></div></aside>
     </div>
 </dialog>
 <dialog id="success-dialog" class="success-dialog" aria-labelledby="success-title" aria-describedby="success-description">
-    <button class="icon-button dialog-close" type="button" data-close aria-label="Close request summary">{!! $icon('close') !!}</button>
-    <div class="success-icon" aria-hidden="true">{!! $icon('check') !!}</div><div class="eyebrow" id="success-eyebrow">Your request</div><h2 id="success-title" tabindex="-1">One step closer.</h2><p id="success-description"></p><dl id="success-summary" class="success-summary"></dl><p class="success-warning" id="success-warning"></p><button class="button button-green" type="button" data-close>Back to dreaming {!! $icon('arrow-up') !!}</button>
+    <button class="icon-button dialog-close" type="button" data-close aria-label="Close request summary"><?php echo $icon('close'); ?></button>
+    <div class="success-icon" aria-hidden="true"><?php echo $icon('check'); ?></div><div class="eyebrow" id="success-eyebrow">Your request</div><h2 id="success-title" tabindex="-1">One step closer.</h2><p id="success-description"></p><dl id="success-summary" class="success-summary"></dl><p class="success-warning" id="success-warning"></p><button class="button button-green" type="button" data-close>Back to dreaming <?php echo $icon('arrow-up'); ?></button>
 </dialog>
-<dialog id="privacy-dialog" class="info-dialog" aria-labelledby="privacy-title"><button class="icon-button dialog-close" type="button" data-close aria-label="Close privacy information">{!! $icon('close') !!}</button><div class="eyebrow">Your details, explained</div><h2 id="privacy-title" tabindex="-1">A little clarity.</h2>
-    @if (!$bookingEndpoint && !$contactEndpoint)
+<dialog id="privacy-dialog" class="info-dialog" aria-labelledby="privacy-title"><button class="icon-button dialog-close" type="button" data-close aria-label="Close privacy information"><?php echo $icon('close'); ?></button><div class="eyebrow">Your details, explained</div><h2 id="privacy-title" tabindex="-1">A little clarity.</h2>
+    <?php if(!$bookingEndpoint && !$contactEndpoint): ?>
     <p>This is a frontend preview. Your name, email, phone, and messages are not sent to a server or saved in browser storage by these forms. Use sample details when testing. Closing a form keeps your entries only in this open page until you refresh or complete the preview.</p>
-    @else
+    <?php else: ?>
     <p>A connected form sends the details you enter to this website’s operator so they can respond to your inquiry. A form marked “preview” does not send its entries. Review the operator’s published privacy notice for retention, access, and contact information before submitting.</p>
-    @endif
-    <p>Only the IDs of experiences you save with the heart button are kept on this device. Clearing your browser’s site data removes them. This page does not include analytics or advertising trackers.</p><p>Photography, fonts, and animation files are loaded from Pexels, Google Fonts, and jsDelivr. Loading these files makes requests to those providers.</p><p>The site owner must supply the actual business privacy notice before collecting real customer information. This explanation is not a complete legal policy.</p><button class="button button-green" type="button" id="privacy-back">Got it {!! $icon('check') !!}</button>
+    <?php endif; ?>
+    <p>Only the IDs of experiences you save with the heart button are kept on this device. Clearing your browser’s site data removes them. This page does not include analytics or advertising trackers.</p><p>Photography, fonts, and animation files are loaded from Pexels, Google Fonts, and jsDelivr. Loading these files makes requests to those providers.</p><p>The site owner must supply the actual business privacy notice before collecting real customer information. This explanation is not a complete legal policy.</p><button class="button button-green" type="button" id="privacy-back">Got it <?php echo $icon('check'); ?></button>
 </dialog>
-<dialog id="lightbox-dialog" class="lightbox-dialog" aria-labelledby="lightbox-title"><button class="icon-button dialog-close" type="button" data-close aria-label="Close photograph">{!! $icon('close') !!}</button><img id="lightbox-image" width="1200" height="900" alt=""><div class="lightbox-caption"><h2 id="lightbox-title" tabindex="-1">An Agafay moment</h2><p>Illustrative photography · <a id="lightbox-credit" href="https://www.pexels.com/" target="_blank" rel="noopener noreferrer">View on Pexels</a></p></div></dialog>
-<script id="agafay-data" type="application/json">{!! json_encode($client, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE) !!}</script>
+<dialog id="lightbox-dialog" class="lightbox-dialog" aria-labelledby="lightbox-title"><button class="icon-button dialog-close" type="button" data-close aria-label="Close photograph"><?php echo $icon('close'); ?></button><img id="lightbox-image" width="1200" height="900" alt=""><div class="lightbox-caption"><h2 id="lightbox-title" tabindex="-1">An Agafay moment</h2><p>Illustrative photography · <a id="lightbox-credit" href="https://www.pexels.com/" target="_blank" rel="noopener noreferrer">View on Pexels</a></p></div></dialog>
+<script id="agafay-data" type="application/json"><?php echo json_encode($client, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE); ?></script>
 <script>
 (() => {
     'use strict';
@@ -2334,7 +2290,7 @@ Do not remove the preview warnings merely to make an unconnected form look live.
     });
 
     function showPrivacy() {
-        const configured = @json($site['privacyUrl']);
+        const configured = <?php echo json_encode($site['privacyUrl'], 15, 512) ?>;
         if (configured) {
             try {
                 const url = new URL(configured, window.location.href);
@@ -2653,3 +2609,4 @@ Do not remove the preview warnings merely to make an unconnected form look live.
 <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
 </body>
 </html>
+<?php /**PATH C:\Users\HP\my-project\resources\views/landing/index.blade.php ENDPATH**/ ?>
