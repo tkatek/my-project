@@ -1,111 +1,135 @@
 <?php
 
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Booking;
+use App\Models\Package;
 use Illuminate\Support\Facades\Route;
 
+$bookingRevenue = fn ($booking) => ($booking->unit_price ?? $booking->package?->price ?? 0) * $booking->guests;
+
 Route::get('/', function () {
-    $packages = \App\Models\Package::where('status', 'active')->get();
+    $packages = Package::where('status', 'active')->get();
     $bookingEndpoint = route('bookings.store');
-    $contactEndpoint = route('bookings.store');
+    $contactEndpoint = route('contact.store');
+
     return view('landing.index', compact('packages', 'bookingEndpoint', 'contactEndpoint'));
 });
 
-Route::get('/dashboard/report', function () {
-    $monthlyRevenue = \App\Models\Booking::whereIn('status', ['confirmed', 'completed'])
-        ->with('package')
-        ->get()
-        ->groupBy(fn($b) => $b->created_at->format('M'))
-        ->map(fn($group) => [
-            'month' => $group->first()->created_at->format('F Y'),
-            'orders' => $group->count(),
-            'revenue' => $group->sum(fn($b) => ($b->package?->price ?? 0) * $b->guests),
-        ])
-        ->values();
+Route::middleware(['auth', 'verified', 'owner'])->group(function () use ($bookingRevenue) {
+    Route::get('/dashboard/report', function () use ($bookingRevenue) {
+        $monthlyRevenue = Booking::whereIn('status', ['confirmed', 'completed'])
+            ->with('package')
+            ->get()
+            ->groupBy(fn ($b) => $b->created_at->format('Y-m'))
+            ->map(fn ($group) => [
+                'month' => $group->first()->created_at->format('F Y'),
+                'orders' => $group->count(),
+                'revenue' => $group->sum($bookingRevenue),
+            ])
+            ->sortKeys()
+            ->values();
 
-    $filename = 'monthly-report-' . date('Y-m-d') . '.csv';
-    $handle = fopen('php://temp', 'r+');
-    fputcsv($handle, ['Month', 'Orders', 'Revenue (MAD)']);
-    foreach ($monthlyRevenue as $row) {
-        fputcsv($handle, [$row['month'], $row['orders'], $row['revenue']]);
-    }
-    rewind($handle);
-    $csv = stream_get_contents($handle);
-    fclose($handle);
+        $filename = 'monthly-report-'.date('Y-m-d').'.csv';
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, ['Month', 'Orders', 'Revenue (MAD)']);
+        foreach ($monthlyRevenue as $row) {
+            fputcsv($handle, [$row['month'], $row['orders'], $row['revenue']]);
+        }
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
 
-    return response($csv, 200, [
-        'Content-Type' => 'text/csv',
-        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard.report');
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    })->name('dashboard.report');
 
-Route::get('/dashboard', function () {
-    $totalOrders = \App\Models\Booking::count();
-    $pendingOrders = \App\Models\Booking::where('status', 'pending')->count();
-    $confirmedOrders = \App\Models\Booking::where('status', 'confirmed')->count();
-    $completedOrders = \App\Models\Booking::where('status', 'completed')->count();
-    $totalRevenue = \App\Models\Booking::whereIn('status', ['confirmed', 'completed'])
-        ->with('package')
-        ->get()
-        ->sum(fn($b) => ($b->package?->price ?? 0) * $b->guests);
-    $recentBookings = \App\Models\Booking::latest()->take(5)->get();
+    Route::get('/dashboard', function () use ($bookingRevenue) {
+        $totalOrders = Booking::count();
+        $pendingOrders = Booking::where('status', 'pending')->count();
+        $confirmedOrders = Booking::where('status', 'confirmed')->count();
+        $completedOrders = Booking::where('status', 'completed')->count();
+        $totalRevenue = Booking::whereIn('status', ['confirmed', 'completed'])
+            ->with('package')
+            ->get()
+            ->sum($bookingRevenue);
+        $recentBookings = Booking::latest()->take(5)->get();
 
-    $monthlyRevenue = \App\Models\Booking::whereIn('status', ['confirmed', 'completed'])
-        ->with('package')
-        ->get()
-        ->groupBy(fn($b) => $b->created_at->format('M'))
-        ->map(fn($group) => (object)[
-            'month' => $group->first()->created_at->format('M'),
-            'revenue' => $group->sum(fn($b) => ($b->package?->price ?? 0) * $b->guests),
-        ])
-        ->values();
+        $monthlyRevenue = Booking::whereIn('status', ['confirmed', 'completed'])
+            ->with('package')
+            ->get()
+            ->groupBy(fn ($b) => $b->created_at->format('Y-m'))
+            ->map(fn ($group) => (object) [
+                'month' => $group->first()->created_at->format('M'),
+                'revenue' => $group->sum($bookingRevenue),
+            ])
+            ->sortKeys()
+            ->values();
 
-    $revenueByPackage = \App\Models\Booking::whereIn('status', ['confirmed', 'completed'])
-        ->with('package')
-        ->get()
-        ->groupBy('package_name')
-        ->map(fn($group) => (object)[
-            'package_name' => $group->first()->package_name,
-            'revenue' => $group->sum(fn($b) => ($b->package?->price ?? 0) * $b->guests),
-        ])
-        ->values();
+        $revenueByPackage = Booking::whereIn('status', ['confirmed', 'completed'])
+            ->with('package')
+            ->get()
+            ->groupBy(fn ($b) => $b->package_name ?: 'Unknown')
+            ->map(fn ($group) => (object) [
+                'package_name' => $group->first()->package_name ?: 'Unknown',
+                'revenue' => $group->sum($bookingRevenue),
+            ])
+            ->sortByDesc('revenue')
+            ->values();
 
-    $bestSellers = \App\Models\Booking::whereIn('status', ['confirmed', 'completed'])
-        ->selectRaw('package_name, COUNT(*) as total_bookings, SUM(guests) as total_revenue')
-        ->groupBy('package_name')
-        ->orderBy('total_bookings', 'desc')
-        ->take(5)
-        ->get()
-        ->map(fn($b) => (object)[
-            'package_name' => $b->package_name,
-            'total_bookings' => $b->total_bookings,
-            'total_revenue' => $b->total_revenue * 500,
+        $bestSellers = Booking::whereIn('status', ['confirmed', 'completed'])
+            ->with('package')
+            ->get()
+            ->groupBy(fn ($b) => $b->package_name ?: 'Unknown')
+            ->map(fn ($group) => (object) [
+                'package_name' => $group->first()->package_name ?: 'Unknown',
+                'total_bookings' => $group->count(),
+                'total_revenue' => $group->sum($bookingRevenue),
+            ])
+            ->sortByDesc('total_bookings')
+            ->take(5)
+            ->values();
+
+        return view('dashboard', compact('totalOrders', 'pendingOrders', 'confirmedOrders', 'completedOrders', 'totalRevenue', 'recentBookings', 'monthlyRevenue', 'revenueByPackage', 'bestSellers'));
+    })->name('dashboard');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+        Route::resource('admin/packages', PackageController::class)->except(['show'])->names([
+            'index' => 'admin.packages',
+            'create' => 'admin.packages.create',
+            'store' => 'admin.packages.store',
+            'edit' => 'admin.packages.edit',
+            'update' => 'admin.packages.update',
+            'destroy' => 'admin.packages.destroy',
         ]);
 
-    return view('dashboard', compact('totalOrders', 'pendingOrders', 'confirmedOrders', 'completedOrders', 'totalRevenue', 'recentBookings', 'monthlyRevenue', 'revenueByPackage', 'bestSellers'));
-})->middleware(['auth', 'verified'])->name('dashboard');
+        Route::get('/admin/orders', [BookingController::class, 'index'])->name('admin.orders');
+        Route::get('/admin/orders/{booking}', [BookingController::class, 'show'])->name('admin.orders.show');
+        Route::post('/admin/orders/{booking}/confirm', [BookingController::class, 'confirm'])->name('admin.orders.confirm');
+        Route::post('/admin/orders/{booking}/complete', [BookingController::class, 'complete'])->name('admin.orders.complete');
+        Route::delete('/admin/orders/{booking}', [BookingController::class, 'destroy'])->name('admin.orders.destroy');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::resource('admin/packages', \App\Http\Controllers\PackageController::class)->names([
-        'index' => 'admin.packages',
-        'create' => 'admin.packages.create',
-        'store' => 'admin.packages.store',
-        'edit' => 'admin.packages.edit',
-        'update' => 'admin.packages.update',
-        'destroy' => 'admin.packages.destroy',
-    ]);
-
-    Route::get('/admin/orders', [\App\Http\Controllers\BookingController::class, 'index'])->name('admin.orders');
-    Route::get('/admin/orders/{booking}', [\App\Http\Controllers\BookingController::class, 'show'])->name('admin.orders.show');
-    Route::post('/admin/orders/{booking}/confirm', [\App\Http\Controllers\BookingController::class, 'confirm'])->name('admin.orders.confirm');
-    Route::post('/admin/orders/{booking}/complete', [\App\Http\Controllers\BookingController::class, 'complete'])->name('admin.orders.complete');
-    Route::delete('/admin/orders/{booking}', [\App\Http\Controllers\BookingController::class, 'destroy'])->name('admin.orders.destroy');
-
+        Route::get('/admin/messages', [MessageController::class, 'index'])->name('admin.messages');
+        Route::post('/admin/messages/{message}/read', [MessageController::class, 'markRead'])->name('admin.messages.read');
+        Route::delete('/admin/messages/{message}', [MessageController::class, 'destroy'])->name('admin.messages.destroy');
+    });
 });
 
-Route::post('/bookings', [\App\Http\Controllers\BookingController::class, 'store'])->name('bookings.store');
+Route::post('/bookings', [BookingController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('bookings.store');
+
+Route::post('/contacts', [ContactController::class, 'store'])
+    ->middleware('throttle:10,1')
+    ->name('contact.store');
 
 require __DIR__.'/auth.php';

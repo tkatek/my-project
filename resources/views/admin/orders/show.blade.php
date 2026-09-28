@@ -22,24 +22,36 @@
                     <p style="margin:0;font-size:16px;font-weight:500;color:#111827;">{{ $booking->phone ?? 'N/A' }}</p>
                 </div>
                 <div>
-                    <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Visit Date</p>
-                    <p style="margin:0;font-size:16px;font-weight:500;color:#111827;">{{ $booking->visit_date ? date('d/m/Y', strtotime($booking->visit_date)) : 'N/A' }}</p>
-                </div>
-                <div>
                     <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Guests</p>
                     <p style="margin:0;font-size:16px;font-weight:500;color:#111827;">{{ $booking->guests }}</p>
+                </div>
+                <div>
+                    <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Preferred Date</p>
+                    <p style="margin:0;font-size:16px;font-weight:500;color:#111827;">{{ $booking->visit_date ? date('d/m/Y', strtotime($booking->visit_date)) : 'N/A' }}</p>
                 </div>
                 <div>
                     <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Package</p>
                     <p style="margin:0;font-size:16px;font-weight:500;color:#111827;">{{ $booking->package_name ?? 'N/A' }}</p>
                 </div>
                 <div>
+                    <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Contact by</p>
+                    <p style="margin:0;font-size:16px;font-weight:500;color:#111827;text-transform:capitalize;">{{ $booking->contact_method ?? 'N/A' }}</p>
+                </div>
+                <div>
+                    <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Hotel / Riad</p>
+                    <p style="margin:0;font-size:16px;font-weight:500;color:#111827;">{{ $booking->hotel ?? 'Not provided' }}</p>
+                </div>
+                <div>
+                    <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Consent</p>
+                    <p style="margin:0;font-size:16px;font-weight:500;color:{{ $booking->consent ? '#065f46' : '#b91c1c' }};">{{ $booking->consent ? 'Given' : 'Not given' }}</p>
+                </div>
+                <div>
                     <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Price</p>
-                    <p style="margin:0;font-size:16px;font-weight:600;color:#111827;">MAD {{ number_format($booking->package?->price ?? 0) }}</p>
+                    <p style="margin:0;font-size:16px;font-weight:600;color:#111827;">MAD {{ number_format($booking->unit_price ?? $booking->package?->price ?? 0) }}</p>
                 </div>
                 <div>
                     <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;text-transform:uppercase;">Total (Guests)</p>
-                    <p style="margin:0;font-size:16px;font-weight:600;color:#111827;">MAD {{ number_format(($booking->package?->price ?? 0) * $booking->guests) }}</p>
+                    <p style="margin:0;font-size:16px;font-weight:600;color:#111827;">MAD {{ number_format(($booking->unit_price ?? $booking->package?->price ?? 0) * $booking->guests) }}</p>
                 </div>
             </div>
 

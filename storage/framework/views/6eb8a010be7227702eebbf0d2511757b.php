@@ -36,6 +36,14 @@
                         <i class="fa-solid fa-clipboard-list"></i>
                         Orders
                     </a>
+                    <a href="<?php echo e(route('admin.messages')); ?>" class="nav-link <?php echo e(request()->routeIs('admin.messages*') ? 'active' : ''); ?>">
+                        <i class="fa-solid fa-envelope"></i>
+                        Messages
+                        <?php ($unreadMessages = \App\Models\Contact::whereNull('read_at')->count()); ?>
+                        <?php if($unreadMessages > 0): ?>
+                            <span style="margin-left:auto;background:#f97316;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:9999px;"><?php echo e($unreadMessages); ?></span>
+                        <?php endif; ?>
+                    </a>
                 </nav>
 
                 <div class="sidebar-footer">

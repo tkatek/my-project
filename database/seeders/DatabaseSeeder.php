@@ -15,11 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $owner = User::firstOrCreate(
+            ['email' => 'owner@example.com'],
+            [
+                'name' => 'Agency Owner',
+                'password' => 'password',
+                'email_verified_at' => now(),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // role is intentionally not mass-assignable (prevents privilege escalation).
+        $owner->role = 'owner';
+        $owner->save();
     }
 }

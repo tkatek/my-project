@@ -5,37 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Booking extends Model
+class Contact extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'customer_name',
+        'name',
         'email',
         'phone',
-        'package_id',
-        'package_name',
-        'unit_price',
-        'visit_date',
-        'guests',
-        'contact_method',
-        'hotel',
+        'subject',
+        'message',
         'consent',
         'request_id',
-        'notes',
-        'status',
+        'read_at',
     ];
 
     protected function casts(): array
     {
         return [
             'consent' => 'boolean',
-            'unit_price' => 'integer',
+            'read_at' => 'datetime',
         ];
     }
 
-    public function package()
+    public function isUnread(): bool
     {
-        return $this->belongsTo(Package::class);
+        return $this->read_at === null;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Package;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
@@ -10,6 +11,7 @@ class BookingController extends Controller
     public function index()
     {
         $bookings = Booking::latest()->paginate(10);
+
         return view('admin.orders.index', compact('bookings'));
     }
 
@@ -42,20 +44,64 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:255',
-            'package_id' => 'nullable|exists:packages,id',
-            'package_name' => 'nullable|string|max:255',
-            'visit_date' => 'nullable|date',
-            'guests' => 'required|integer|min:1',
-            'notes' => 'nullable|string',
+            'customer_name' => 'required|string|min:2|max:100',
+            'email' => 'required|email|max:160',
+            'phone' => 'required|string|max:25',
+            'package_id' => 'required|exists:packages,id',
+            'visit_date' => 'required|date|after_or_equal:today',
+            'guests' => 'required|integer|min:1|max:12',
+            'contact_method' => 'required|in:whatsapp,email,phone',
+            'hotel' => 'nullable|string|max:180',
+            'notes' => 'nullable|string|max:1500',
+            'consent' => 'accepted',
+            'company_website' => 'nullable|max:0',
         ]);
 
-        $validated['status'] = 'pending';
+        $package = Package::find($validated['package_id']);
 
-        Booking::create($validated);
+        if (! $package) {
+            return response()->json([
+                'success' => false,
+                'message' => 'That experience is no longer available. Please choose another.',
+            ], 422);
+        }
 
-        return response()->json(['success' => true, 'message' => 'Booking submitted successfully.']);
+        $requestId = $request->input('request_id') ?: $request->header('Idempotency-Key');
+
+        if ($requestId && Booking::where('request_id', $requestId)->exists()) {
+            $existing = Booking::where('request_id', $requestId)->first();
+
+            return response()->json([
+                'success' => true,
+                'reference' => $this->reference($existing),
+            ]);
+        }
+
+        $booking = Booking::create([
+            'customer_name' => $validated['customer_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'package_id' => $package->id,
+            'package_name' => $package->title,
+            'unit_price' => $package->price,
+            'visit_date' => $validated['visit_date'],
+            'guests' => $validated['guests'],
+            'contact_method' => $validated['contact_method'],
+            'hotel' => $validated['hotel'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+            'consent' => true,
+            'request_id' => $requestId,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'reference' => $this->reference($booking),
+        ]);
+    }
+
+    private function reference(Booking $booking): string
+    {
+        return 'AGF-'.str_pad($booking->id, 4, '0', STR_PAD_LEFT);
     }
 }

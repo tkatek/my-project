@@ -10,6 +10,7 @@ class PackageController extends Controller
     public function index()
     {
         $packages = Package::paginate(10);
+
         return view('admin.packages.index', compact('packages'));
     }
 

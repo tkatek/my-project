@@ -53,12 +53,12 @@ Do not remove the preview warnings merely to make an unconnected form look live.
         'whatsapp' => null, // Digits only, with country code. Example format: 212XXXXXXXXX.
         'loginUrl' => url('/login'),
         'privacyUrl' => null, // Your published privacy notice; null opens the preview explanation.
-        'demoContent' => true,
+        'demoContent' => false,
         'currency' => 'MAD',
         'timezone' => 'Africa/Casablanca',
     ], $site ?? []);
     $bookingEndpoint = $bookingEndpoint ?? $site['bookingEndpoint'] ?? route('bookings.store');
-    $contactEndpoint = $contactEndpoint ?? $site['contactEndpoint'] ?? route('bookings.store');
+    $contactEndpoint = $contactEndpoint ?? $site['contactEndpoint'] ?? null;
     $photos = [
         'hero' => 'https://images.pexels.com/photos/36579415/pexels-photo-36579415.jpeg',
         'camel' => 'https://images.pexels.com/photos/36579390/pexels-photo-36579390.jpeg',
@@ -2484,7 +2484,7 @@ Do not remove the preview warnings merely to make an unconnected form look live.
             : (booking ? 'Your request was received. The operator can now contact you to confirm availability, the final quote, and your plans.' : 'Your message was received. The operator can now reply using the contact details you provided.');
         const rows = [];
         if (booking) {
-            rows.push(['Your experience', item.title], ['Preferred date', dateLabel(String(formData.get('date')))], ['Guests', String(formData.get('guests'))], ['Estimated total', money(item.price * Number(formData.get('guests')))]);
+            rows.push(['Your experience', item.title], ['Preferred date', dateLabel(String(formData.get('visit_date')))], ['Guests', String(formData.get('guests'))], ['Estimated total', money(item.price * Number(formData.get('guests')))]);
         } else {
             const subjectLabels = {experience:'Help choosing an experience', private:'A private or custom day', group:'A group experience', question:'Something else'};
             rows.push(['Your name', String(formData.get('name'))], ['Your plans', subjectLabels[formData.get('subject')] || 'General inquiry']);
