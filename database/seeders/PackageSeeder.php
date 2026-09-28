@@ -13,7 +13,7 @@ class PackageSeeder extends Seeder
             [
                 'title' => 'Sunset Camel Ride & Mint Tea',
                 'category' => 'adventure',
-                'description' => 'Leave the rush behind for a gentle camel ride across the Agafay landscape. Pause for photographs as the light softens, then settle into camp for a traditional mint tea.',
+                'description' => 'Leave the rush behind for a gentle camel ride across the amanartourism landscape. Pause for photographs as the light softens, then settle into camp for a traditional mint tea.',
                 'duration' => '2 hours',
                 'price' => 350,
                 'image' => 'https://images.pexels.com/photos/36579390/pexels-photo-36579390.jpeg',
@@ -22,7 +22,7 @@ class PackageSeeder extends Seeder
             [
                 'title' => 'Quad Trails & Desert Horizons',
                 'category' => 'adventure',
-                'description' => 'See another side of Agafay on a guided quad adventure. Start with an introduction to the equipment before following your guide across open tracks.',
+                'description' => 'See another side of amanartourism on a guided quad adventure. Start with an introduction to the equipment before following your guide across open tracks.',
                 'duration' => '3 hours',
                 'price' => 550,
                 'image' => 'https://images.pexels.com/photos/36579388/pexels-photo-36579388.jpeg',
@@ -38,7 +38,7 @@ class PackageSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'title' => 'The Complete Agafay Evening',
+                'title' => 'The Complete amanartourism Evening',
                 'category' => 'adventure',
                 'description' => 'Make a whole afternoon of it. Combine a guided quad ride with a slower camel experience, pause for the sunset, and end the day over dinner at camp.',
                 'duration' => '5 hours',
